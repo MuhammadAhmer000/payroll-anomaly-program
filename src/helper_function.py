@@ -1,9 +1,12 @@
 # import statements
 import pandas as pd
 
-def normalize_column_names(dataframe: pd.DataFrame.columns):
+def normalize_column_names(columns: pd.Index) -> pd.Index:
     """
-    :param dataframe: dataframe columns; specifically DatFrame.columns
-    :return: normalized version of the dataframe column names
+    :param columns: dataframe columns (DataFrame.columns)
+    :return: normalized column names
     """
-    return dataframe.columns.str.lower().str.replace(' ', '_').str.replace('(', '').str.replace(')', '')
+    return (columns.str.lower()
+                   .str.replace(' ', '_', regex=False)
+                   .str.replace('(', '', regex=False)
+                   .str.replace(')', '', regex=False))

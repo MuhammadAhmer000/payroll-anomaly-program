@@ -2,7 +2,7 @@
 import logging
 from pathlib import Path
 import pandas as pd
-from src.data_ingestion import load_payroll
+
 
 # preamble
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def column_verification(dataframe, file_path: str = Path(__file__).parent.parent
 
 
 def is_duplicate(dataframe):
-    counts = dataframe.groupby(["Month", "Employee ID"])["Employee ID"].transform("size")
+    counts = dataframe.groupby(["month", "employee_id"])["employee_id"].transform("size")
     return list(dataframe[counts > 1].index)
 
 
@@ -53,3 +53,5 @@ def data_verification(dataframe):
 
     logger.info(f"Payroll file loaded successfully: {dataframe.shape[0]} rows, {dataframe.shape[1]} columns")
     print(f"Payroll file loaded successfully: {dataframe.shape[0]} rows, {dataframe.shape[1]} columns")
+
+    return True
