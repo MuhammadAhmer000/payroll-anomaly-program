@@ -2,6 +2,9 @@
 # note: whenever you change the file structure, this requires change as well, add this to the README.md
 # TODO: add a tool to add sections to the YAML file...
 
+# can be "database", "excel"
+ingestion_method: "excel"
+
 file_path:
   input: "data/input/Sample_Salary_Register.xlsx"
   output: "data/output/output_data.xlsx"

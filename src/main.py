@@ -26,19 +26,43 @@ def SET_CONFIG():
 # TODO: add endpoint for /test here...
 def LOAD_PAYROLL(file_path: str):
     try:
-        load_payroll(file_path)
+        dataframe = load_payroll(file_path)
     except Exception as e:                                     # TODO: write better exceptions
         logging.info(f"MAIN: failed to load payroll data")
         print(f"MAIN: failed to load payroll data")
         raise
+
+    return dataframe
 
 
 # Note: main will eventually be left for testing, React will be the "main" frontend
 # TODO: add endpoint for /test here...
 def main():
 
+    # === config loading ===
     config = SET_CONFIG()
-    LOAD_PAYROLL(config["file_path"]["input"])
+
+    input_path = config["file_path"]["input"]
+    output_path = config["file_path"]["output"]
+    
+    if config["ingestion_method"] == "excel":
+
+        # === load excel payroll ===
+        dataframe = LOAD_PAYROLL(input_path)
+        print(f"dataframe: {dataframe.shape}")
+
+    elif config["ingestion_method"] == "database":
+
+        # === load database payroll ==
+
+
+    else:
+
+        print("invalid data ingestion method... please update in configuration.yml")
+        raise
+
+
+
 
 
 
