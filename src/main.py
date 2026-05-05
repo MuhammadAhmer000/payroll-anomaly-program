@@ -5,7 +5,7 @@ from src.config_loader import set_config
 # TODO: add endpoint for /config here...
 def main_set_config():
 
-    # require: from src.config_loader import set_config
+    # required imports: from src.config_loader import set_config
     return set_config()
 
 
@@ -14,7 +14,8 @@ def main_set_config():
 def main():
 
     config = main_set_config()
-    
+    print(config)
+
 
 
 
