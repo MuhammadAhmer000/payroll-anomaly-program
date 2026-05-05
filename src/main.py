@@ -8,6 +8,7 @@ import logging
 # preamble
 logger = logging.getLogger(__name__)
 
+
 # TODO: add endpoint for /config here...
 def SET_CONFIG():
 
@@ -22,6 +23,7 @@ def SET_CONFIG():
     return config
 
 
+# TODO: add endpoint for /test here...
 def LOAD_PAYROLL(file_path: str):
     try:
         load_payroll(file_path)
@@ -31,13 +33,13 @@ def LOAD_PAYROLL(file_path: str):
         raise
 
 
-
 # Note: main will eventually be left for testing, React will be the "main" frontend
 # TODO: add endpoint for /test here...
 def main():
 
     config = SET_CONFIG()
     LOAD_PAYROLL(config["file_path"]["input"])
+
 
 
 
