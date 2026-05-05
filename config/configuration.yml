@@ -1,10 +1,17 @@
-path:
+# update this name to be more informative
+# note: whenever you change the file structure, this requires change as well, add this to the README.md
+
+file_path:
+  input: "data/Sample_Salary_Register.xlsx"
+  supplemental_data: "data/column_schema.xlsx"
+  output: "data/output_data.xlsx"
 
 rule_threshold:
+  PF: 0.1
+  HRA: 0.05
+  Net_Payable: 0.01
 
-
-# update this name to be more informative
-
-rate:
+rate_data:
+  PF: 0.12
 
 
