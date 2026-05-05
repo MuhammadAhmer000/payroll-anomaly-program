@@ -9,12 +9,14 @@ def main_set_config():
     return set_config()
 
 
+
+
 # Note: main will eventually be left for testing, React will be the "main" frontend
 # TODO: add endpoint for /test here...
 def main():
 
     config = main_set_config()
-    print(config)
+
 
 
 
