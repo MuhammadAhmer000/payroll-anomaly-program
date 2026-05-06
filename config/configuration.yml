@@ -13,11 +13,11 @@ file_path:
   column_schema: "data/other/column_schema.xlsx"
 
 rule_threshold:
-  PF: 0.1
-  HRA: 0.05
-  Net_Payable: 0.01
+  pf: 0.1
+  hra: 0.05
+  net_payable: 0.01
 
 rate_data:
-  PF: 0.12
+  pf: 0.12
 
 

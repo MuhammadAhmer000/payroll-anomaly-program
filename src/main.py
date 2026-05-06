@@ -1,11 +1,15 @@
 # import statements
 import logging
+import pandas as pd
 
 from src.config_loader import set_config
 from src.data_ingestion import load_payroll
 from src.database_ingestion import load_db_credentials
 from src.database_ingestion import import_database
+from src.helper_function import split_sort_employee
+from src.payroll_rule_testing import payroll_validation_wrapper
 import logging
+from pathlib import Path
 
 # preamble
 logger = logging.getLogger(__name__)
@@ -48,8 +52,38 @@ def IMPORT_DATABASE(db_credentials, database_name, simulate_data=False):
 # def CREATE_DATABASE(db_credentials):
 
 
+def PAYROLL_RULE_TESTING(dataframe, config):
+    return payroll_validation_wrapper(dataframe, config)
+
+def STATS_TESTING():
+    pass
+
+def ML_TESTING():
+    pass
+
+def TREND_ANALYSIS_TESTING():
+    pass
+
+def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, output_path, config):
+
+    # with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+    for emp_id, emp_df in split_sort_employee(DATAFRAME, EMP_COL, MONTH_COL):
+
+            logger.info(f"Beginning analysis process for employee {emp_id}")
 
 
+            logger.info(f"Beginning: payroll rule testing for {emp_id}")
+            rule_df = PAYROLL_RULE_TESTING(DATAFRAME, config)
+            # logger.info(f"payroll rule testing completed. Table: {len(rule_df)} records")
+            print(rule_df)
+
+
+            logger.info(f"Beginning: statistics testing for {emp_id}")
+            stats_df = STATS_TESTING()
+            # logger.info(f"Baseline Calculated: {len(stats_df)} records")
+
+
+    return None
 
 
 # Note: main will eventually be left for testing, React will be the "main" frontend
@@ -59,9 +93,13 @@ def main():
     # === config loading ===
     config = SET_CONFIG()
 
+    # === file path from config file
+    # TODO: fix input_path so that it automatically appends input_path
     input_path = config["file_path"]["input"]
-    output_path = config["file_path"]["output"]
 
+    output_path = str(Path(__file__).parent.parent) + '/' + config["file_path"]["output"]
+
+    # === loading payroll (selecting excel or database)
     if config["ingestion_method"] == "excel":
 
         # === load excel payroll ===
@@ -78,8 +116,22 @@ def main():
 
     else:
 
+        # === other option
         print("invalid data ingestion method... please update in configuration.yml")
         raise
+
+    EMP_COL, MONTH_COL = "employee_id", "month"
+
+    # TODO: to remove the "global", add a try/except block
+    ANALYSIS_WRAPPER(payroll_df, EMP_COL, MONTH_COL, output_path, config)
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
