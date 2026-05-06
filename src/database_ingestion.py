@@ -1,9 +1,11 @@
 # import statements
-from dotenv import dotenv_values
+from dotenv import dotenv_values, find_dotenv
 import logging
 import pandas as pd
 from pathlib import Path
 from src.data_ingestion import load_payroll
+from src.data_ingestion import load_payroll
+from src.config_loader import set_config
 
 import psycopg2 as db
 from psycopg2 import OperationalError
@@ -13,8 +15,10 @@ from src.config_loader import set_config
 logger = logging.getLogger(__name__)
 input_path = str(Path(__file__).parent.parent) + "/" + set_config()["file_path"]["input"]
 
-def load_credentials():
-    config = dotenv_values(".env")
+
+def load_db_credentials():
+    config = dotenv_values(find_dotenv(raise_error_if_not_found=True))
+    print(f"({__name__})", ".env content: ", config)
     return config
 
 
@@ -69,7 +73,7 @@ def create_table(dbname, user, password, table_name, name_column, datatype_colum
     print(f"table '{table_name}' created successfully")
 
 # TODO: remove this once the above program is used
-def create_table_query(file_path: str = Path(__file__).parent.parent / "data/supplemental/column_schema.xlsx"):
+def create_table_query(file_path: str = Path(__file__).parent.parent / "data/other/column_schema.xlsx"):
     schema_dataframe = pd.read_excel(file_path)
     fixed_column_name = pd.Series(schema_dataframe['column_name'].str.replace(' ', '_', regex=False).
                                   str.replace('(', '', regex=False).str.replace(')', '', regex=False))
@@ -79,16 +83,18 @@ def create_table_query(file_path: str = Path(__file__).parent.parent / "data/sup
     return query
 
 # TODO: revise this program to make it simpler
+# TODO: make this so that it doesn't append, just remakes it
 def simulate_dataset(cur, simulate_dataset_flag=True):
     logger.info("Simulating dataset")
     if simulate_dataset_flag:
         payroll_table = create_table_query()
-        # TODO: code this into a file, or something
-        # TODO: put try-except for duplicate databases
-        res = cur.execute(payroll_table)
+        try:
+            res = cur.execute(payroll_table)
+        except Exception as e:
+            logger.warning(f"Table creation skipped: {e}")
+            cur.connection.rollback()  # recover from failed transaction
 
-        # temporary, streamline it later...
-        df = load_payroll()
+        df = load_payroll(set_config()["file_path"]["input"])
         logger.debug(f"Simulating {len(df)} records into Payroll table")
         logger.debug(f"df dataframe: {df.to_string()}")
         for index, row in df.iterrows():
@@ -106,17 +112,16 @@ def simulate_dataset(cur, simulate_dataset_flag=True):
                     %s, %s, %s, %s, %s,
                     %s, %s, %s,
                     %s, %s, %s, %s, %s,
-                    %s, %s  
-                        )
-                        """,
-                        (row['month'], row['employee_id'], row['employee_name'], row['department'], row['designation'],
-                         row['month_days'], row['paid_days'], row['lwp'], row['ctc_annual'], row['gross_salary'],
-                         row['basic'], row['hra'], row['special_allowance'], row['conveyance'], row['medical'],
-                         row['other_allowances'], row['variable_pay'], row['investments_80c'],
-                         row['total_earnings'], row['pf'], row['pt'], row['tds'], row['other_deductions'],
-                         row['total_deductions'], row['net_payable']
-                         )
-                        )
+                    %s, %s
+                )
+                """,
+                (row['month'], row['employee_id'], row['employee_name'], row['department'], row['designation'],
+                 row['month_days'], row['paid_days'], row['lwp'], row['ctc_annual'], row['gross_salary'],
+                 row['basic'], row['hra'], row['special_allowance'], row['conveyance'], row['medical'],
+                 row['other_allowances'], row['variable_pay'], row['investments_80c'],
+                 row['total_earnings'], row['pf'], row['pt'], row['tds'], row['other_deductions'],
+                 row['total_deductions'], row['net_payable'])
+            )
     logger.info("Dataset simulation complete")
 
 # TODO: move to main wrapper

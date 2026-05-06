@@ -3,7 +3,9 @@
 # TODO: add a tool to add sections to the YAML file...
 
 # can be "database", "excel"
-ingestion_method: "excel"
+ingestion_method: "database"
+
+simulate_database: true
 
 file_path:
   input: "data/input/Sample_Salary_Register.xlsx"
