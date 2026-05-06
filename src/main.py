@@ -6,12 +6,14 @@ from src.config_loader import set_config
 from src.data_ingestion import load_payroll
 from src.database_ingestion import load_db_credentials
 from src.database_ingestion import import_database
-from src.helper_function import split_sort_employee
+from src.helper_function import split_sort_employee, get_numerical_cols
 from src.machine_learning_testing import unsupervised_machine_learning_results, get_ensemble_results
 from src.payroll_rule_testing import payroll_validation_wrapper
 from src.stats_testing import compute_zscore_deviation
 import logging
 from pathlib import Path
+
+from src.trend_analysis import get_trend_analysis, root_cause_formatter
 
 # preamble
 logger = logging.getLogger(__name__)
@@ -70,8 +72,25 @@ def ML_TESTING(emp_id, dataframe):
     return unsupervised_results_df, ensemble_df
 
 
-def TREND_ANALYSIS_TESTING():
-    pass
+def TREND_ANALYSIS_TESTING(emp_id, emp_df):
+    field_root_cause = []  # eventually remove this
+    numeric_cols = get_numerical_cols()
+    root_cause_df = get_trend_analysis(emp_id, emp_df, field_root_cause, numeric_cols)
+    logger.info(f"Root Cause Compiled: {len(root_cause_df)} records")
+
+    root_cause_df_output, root_cause_summary_output = root_cause_formatter(root_cause_df)
+
+    # === ROOT CAUSE DETAILS ===
+    if root_cause_df_output.empty:
+        logger.debug(pd.DataFrame(columns=root_cause_df_output.columns))
+    else:
+        logger.debug(root_cause_df_output)
+
+    # === ROOT CAUSE SUMMARY ===
+    logger.debug(root_cause_summary_output)
+
+    return root_cause_df_output, root_cause_summary_output
+
 
 def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, output_path, config):
 
@@ -98,6 +117,10 @@ def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, output_path, config):
             print(unsupervised_df)
             print(ensemble_df)
 
+            logger.info(f"Beginning: machine learning testing for {emp_id}")
+            root_cause_df, root_cause_summary = TREND_ANALYSIS_TESTING(emp_id, DATAFRAME)
+            print(root_cause_df)
+            print(root_cause_summary)
 
 
 
