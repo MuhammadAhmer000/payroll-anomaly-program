@@ -7,7 +7,9 @@ from src.data_ingestion import load_payroll
 from src.database_ingestion import load_db_credentials
 from src.database_ingestion import import_database
 from src.helper_function import split_sort_employee
+from src.machine_learning_testing import unsupervised_machine_learning_results, get_ensemble_results
 from src.payroll_rule_testing import payroll_validation_wrapper
+from src.stats_testing import compute_zscore_deviation
 import logging
 from pathlib import Path
 
@@ -49,17 +51,24 @@ def IMPORT_DATABASE(db_credentials, database_name, simulate_data=False):
     dataframe = import_database(db_credentials, database_name, simulate_data)
     return dataframe
 
+# TODO: implement this, along with querying and stuff
 # def CREATE_DATABASE(db_credentials):
 
 
 def PAYROLL_RULE_TESTING(dataframe, config):
     return payroll_validation_wrapper(dataframe, config)
 
-def STATS_TESTING():
-    pass
 
-def ML_TESTING():
-    pass
+def STATS_TESTING(dataframe, z_threshold):
+    return compute_zscore_deviation(dataframe, z_threshold)
+
+
+def ML_TESTING(emp_id, dataframe):
+    unsupervised_results_df = unsupervised_machine_learning_results(dataframe)
+    ensemble_results = []  # eventually remove this
+    ensemble_df = get_ensemble_results(emp_id, unsupervised_results_df, ensemble_results)
+    return unsupervised_results_df, ensemble_df
+
 
 def TREND_ANALYSIS_TESTING():
     pass
@@ -79,10 +88,24 @@ def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, output_path, config):
 
 
             logger.info(f"Beginning: statistics testing for {emp_id}")
-            stats_df = STATS_TESTING()
-            # logger.info(f"Baseline Calculated: {len(stats_df)} records")
+            stats_df = STATS_TESTING(DATAFRAME, config["rule_threshold"]["z_score"])
+            logger.info(f"Baseline Calculated: {len(stats_df)} records")
+            print(stats_df)
 
 
+            logger.info(f"Beginning: machine learning testing for {emp_id}")
+            ensemble_df, unsupervised_df = ML_TESTING(emp_id, DATAFRAME)
+            print(unsupervised_df)
+            print(ensemble_df)
+
+
+
+
+
+
+
+
+    # TODO: return back each object at the end
     return None
 
 

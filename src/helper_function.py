@@ -15,6 +15,16 @@ def split_df(employee_dataframe):
     return employee_dataframe.iloc[:-1], employee_dataframe.iloc[-1:]
 
 
+def get_numerical_cols():        # verify, plus see if you want to combine this with numeric_df instead
+    return [
+        'paid_days', 'lwp', 'ctc_annual', 'gross_salary',
+        'basic', 'hra', 'special_allowance', 'conveyance',
+        'other_allowances', 'variable_pay', 'investments_80c',
+        'total_earnings', 'pf', 'pt', 'tds', 'other_deductions',
+        'total_deductions', 'net_payable'
+    ]
+
+
 def normalize_column_names(columns: pd.Index) -> pd.Index:
     """
     :param columns: dataframe columns (DataFrame.columns)
