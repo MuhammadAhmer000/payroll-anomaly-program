@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 
 from src.config_loader import set_config
+from src.data_exportation import compute_zscore_output
 from src.data_ingestion import load_payroll
 from src.database_ingestion import load_db_credentials
 from src.database_ingestion import import_database
@@ -17,6 +18,8 @@ from src.trend_analysis import get_trend_analysis, root_cause_formatter
 
 # preamble
 logger = logging.getLogger(__name__)
+
+# TODO: add "create table" if it doesn't exist
 
 
 # TODO: add endpoint for /config here...
@@ -91,10 +94,9 @@ def TREND_ANALYSIS_TESTING(emp_id, emp_df):
 
     return root_cause_df_output, root_cause_summary_output
 
-
-def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, output_path, config):
-
-    # with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+# TODO: VERY IMPORTANT separate excel & database exportation later
+def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, config, output_path):
+    results = []
     for emp_id, emp_df in split_sort_employee(DATAFRAME, EMP_COL, MONTH_COL):
 
             logger.info(f"Beginning analysis process for employee {emp_id}")
@@ -113,7 +115,7 @@ def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, output_path, config):
 
 
             logger.info(f"Beginning: machine learning testing for {emp_id}")
-            ensemble_df, unsupervised_df = ML_TESTING(emp_id, DATAFRAME)
+            unsupervised_df, ensemble_df = ML_TESTING(emp_id, DATAFRAME)
             print(unsupervised_df)
             print(ensemble_df)
 
@@ -122,14 +124,35 @@ def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, output_path, config):
             print(root_cause_df)
             print(root_cause_summary)
 
+            # df_container = [rule_df, stats_df, unsupervised_df, ensemble_df, root_cause_df, root_cause_summary]
+
+            # EXPORT_WRAPPER(emp_id, df_container, writer)
+            results.append({
+                "emp_id": emp_id,
+                "rule_df": rule_df,
+                "stats_df": stats_df,
+                "unsupervised_df": unsupervised_df,
+                "ensemble_df": ensemble_df,
+                "root_cause_df": root_cause_df,
+                "root_cause_summary": root_cause_summary,
+            })
+    return results
 
 
-
-
-
-
-    # TODO: return back each object at the end
-    return None
+def EXPORT_WRAPPER(results, output_path):
+    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+        for r in results:
+            compute_zscore_output(
+                writer,
+                r["emp_id"],
+                r["rule_df"],
+                r["stats_df"],
+                r["unsupervised_df"],
+                r["ensemble_df"],
+                r["root_cause_df"],
+                r["root_cause_summary"],
+            )
+    logger.info("Exportation has been completed in EXPORT_WRAPPER")
 
 
 # Note: main will eventually be left for testing, React will be the "main" frontend
@@ -149,8 +172,8 @@ def main():
     if config["ingestion_method"] == "excel":
 
         # === load excel payroll ===
-        dataframe = LOAD_PAYROLL(input_path)
-        print(f"dataframe: {dataframe.shape}")
+        payroll_df = LOAD_PAYROLL(input_path)
+        print(f"dataframe: {payroll_df.shape}")
 
     elif config["ingestion_method"] == "database":
 
@@ -169,14 +192,14 @@ def main():
     EMP_COL, MONTH_COL = "employee_id", "month"
 
     # TODO: to remove the "global", add a try/except block
-    ANALYSIS_WRAPPER(payroll_df, EMP_COL, MONTH_COL, output_path, config)
+    df_container = ANALYSIS_WRAPPER(payroll_df, EMP_COL, MONTH_COL, config, output_path)
 
+    if config["exportation_method"] == "excel":
+        EXPORT_WRAPPER(df_container, output_path)
+        logger.info("Exportation has been completed in main()")
 
-
-
-
-
-
+    # elif config["exportation_method"] == "database":
+    # TODO: add database functionality
 
 
 
