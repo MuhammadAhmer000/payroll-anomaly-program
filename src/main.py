@@ -1,6 +1,7 @@
 # import statements
 import logging
 import pandas as pd
+from fastapi import FastAPI
 
 from src.config_loader import set_config
 from src.data_exportation import compute_zscore_output
@@ -18,6 +19,21 @@ from src.trend_analysis import get_trend_analysis, root_cause_formatter
 
 # preamble
 logger = logging.getLogger(__name__)
+app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, UploadFile
+
+# global variables
+global stored_df
+global stored_config
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # TODO: add "create table" if it doesn't exist
 
@@ -95,6 +111,8 @@ def TREND_ANALYSIS_TESTING(emp_id, emp_df):
     return root_cause_df_output, root_cause_summary_output
 
 # TODO: VERY IMPORTANT separate excel & database exportation later
+
+
 def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, config, output_path):
     results = []
     for emp_id, emp_df in split_sort_employee(DATAFRAME, EMP_COL, MONTH_COL):
@@ -155,8 +173,23 @@ def EXPORT_WRAPPER(results, output_path):
     logger.info("Exportation has been completed in EXPORT_WRAPPER")
 
 
+
+@app.post("/upload")
+def upload_endpoint(file: UploadFile):
+    global stored_df
+    stored_df = LOAD_PAYROLL(file)
+    return {"status": "uploaded"}
+
+@app.post("/config")
+def config_endpoint(file: UploadFile):
+    global stored_config
+    stored_config = SET_CONFIG(file)
+    return {"status": "config uploaded"}
+
+
 # Note: main will eventually be left for testing, React will be the "main" frontend
 # TODO: add endpoint for /test here...
+@app.post("/analyze")
 def main():
 
     # === config loading ===
