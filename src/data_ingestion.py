@@ -6,6 +6,7 @@ import logging
 from src.helper_function import normalize_column_names
 from src.data_validation import data_verification
 from pathlib import Path
+from fastapi import UploadFile
 
 # preamble
 logger = logging.getLogger(__name__)
@@ -60,4 +61,26 @@ def load_payroll(file_path: str):
 
     return df
 
+def load_payroll_api(file_name: UploadFile):
+    """
+    # TODO: required imports: from src.helper_function import normalize_column_names
+    """
+
+    # TODO: implement this better for the API
+    # validate_excel(file_name)
+
+    # importing excel file to pandas dataframe
+    try:
+        df = pd.read_excel(file_name.file)
+    except Exception as e:
+        raise ValueError(f"failed to read payroll excel file: {e}")
+
+    # normalizing column names (if not done already)
+    df.columns = normalize_column_names(df.columns)
+
+    # data verification
+    if not data_verification(df):
+        raise IOError(f"data failed the validation process, please abide by data schema & formatting")
+
+    return df
 

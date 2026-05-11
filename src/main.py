@@ -2,10 +2,11 @@
 import logging
 import pandas as pd
 from fastapi import FastAPI
+from starlette.responses import FileResponse, JSONResponse
 
-from src.config_loader import set_config
+from src.config_loader import set_config, set_config_api
 from src.data_exportation import compute_zscore_output
-from src.data_ingestion import load_payroll
+from src.data_ingestion import load_payroll, load_payroll_api
 from src.database_ingestion import load_db_credentials
 from src.database_ingestion import import_database
 from src.helper_function import split_sort_employee, get_numerical_cols
@@ -177,19 +178,47 @@ def EXPORT_WRAPPER(results, output_path):
 @app.post("/upload")
 def upload_endpoint(file: UploadFile):
     global stored_df
-    stored_df = LOAD_PAYROLL(file)
+    stored_df = load_payroll_api(file)
     return {"status": "uploaded"}
 
 @app.post("/config")
 def config_endpoint(file: UploadFile):
     global stored_config
-    stored_config = SET_CONFIG(file)
+    stored_config = set_config_api(file)
     return {"status": "config uploaded"}
 
 
 # Note: main will eventually be left for testing, React will be the "main" frontend
 # TODO: add endpoint for /test here...
 @app.post("/analyze")
+def analyze():
+    global stored_df, stored_config
+
+    config = stored_config
+    payroll_df = stored_df
+    output_path = "output.xlsx"
+
+    EMP_COL, MONTH_COL = "employee_id", "month"
+
+    # TODO: to remove the "global", add a try/except block
+    df_container = ANALYSIS_WRAPPER(payroll_df, EMP_COL, MONTH_COL, config, output_path)
+
+    return JSONResponse(content=[
+        {
+            "emp_id": r["emp_id"],
+            "rule_df": r["rule_df"].to_dict(orient="records"),
+            "stats_df": r["stats_df"].to_dict(orient="records"),
+            "unsupervised_df": r["unsupervised_df"].to_dict(orient="records"),
+            "ensemble_df": r["ensemble_df"].to_dict(orient="records"),
+            "root_cause_df": r["root_cause_df"].to_dict(orient="records"),
+            "root_cause_summary": r["root_cause_summary"].to_dict(orient="records"),
+        }
+        for r in df_container
+    ])
+
+
+
+
 def main():
 
     # === config loading ===
