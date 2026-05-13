@@ -57,6 +57,6 @@ def compute_zscore_deviation(employee_dataframe, Z_THRESHOLD):
     logger.info("Z-score deviation computation completed")
     return pd.DataFrame({
         "z_score": z_scores,
-        "z_score_deviation (%)": stats.norm.cdf(z_scores) * 100,
+        "z_score_deviation": stats.norm.cdf(z_scores) * 100,
         "anomaly": np.abs(z_scores) > Z_THRESHOLD
-    })
+    }).reset_index().rename(columns={"index": "field"})

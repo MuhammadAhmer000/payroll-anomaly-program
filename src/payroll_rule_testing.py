@@ -55,8 +55,8 @@ def pf_validation(historical_df, latest_df, *, pf_rate=0.12, pf_threshold=0.1, *
 def HRA_validation(historical_df, latest_df, *, hra_threshold=0.05, **kwargs):
     logger.info("HRA validation program running")
     hra_to_basic_historical = historical_df["hra"] / historical_df["basic"]
-    hra_to_basic_latest = (latest_df["hra"] / latest_df["basic"]).iloc[0]
-    hra_to_basic_deviation = abs(hra_to_basic_historical.mean() - hra_to_basic_latest)
+    hra_to_basic_latest = (latest_df["hra"] / latest_df["basic"]).iloc[0].round(4)
+    hra_to_basic_deviation = abs(hra_to_basic_historical.mean() - hra_to_basic_latest).round(4)
     logger.info(f"HRA validation results: {(hra_to_basic_deviation > hra_threshold), hra_to_basic_latest, hra_to_basic_deviation}")
     return (hra_to_basic_deviation > hra_threshold), hra_to_basic_latest, hra_to_basic_deviation
 

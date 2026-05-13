@@ -7,6 +7,7 @@ from src.helper_function import normalize_column_names
 from src.data_validation import data_verification
 from pathlib import Path
 from fastapi import UploadFile
+from io import BytesIO
 
 # preamble
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 def validate_excel(input_file: Path):
 
     file_path = Path(input_file)
+
 
     # Check: is the file missing?
     if not file_path.exists():
@@ -62,6 +64,9 @@ def load_payroll(file_path: str):
     return df
 
 def load_payroll_api(file_name: UploadFile):
+    contents = file_name.file.read()
+    print(f"File size: {len(contents)} bytes")
+    print(f"First bytes: {contents[:10]}")
     """
     # TODO: required imports: from src.helper_function import normalize_column_names
     """
@@ -71,7 +76,7 @@ def load_payroll_api(file_name: UploadFile):
 
     # importing excel file to pandas dataframe
     try:
-        df = pd.read_excel(file_name.file)
+        df = pd.read_excel(BytesIO(contents), engine="openpyxl")
     except Exception as e:
         raise ValueError(f"failed to read payroll excel file: {e}")
 

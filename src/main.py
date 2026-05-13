@@ -154,10 +154,11 @@ def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, config, output_path):
                 "ensemble_df": ensemble_df,
                 "root_cause_df": root_cause_df,
                 "root_cause_summary": root_cause_summary,
+                "overall": (rule_df["Anomaly"].any() or stats_df["anomaly"].any() or unsupervised_df["Ensemble_Anomaly"]).any()
             })
     return results
 
-
+@app.post("/download")
 def EXPORT_WRAPPER(results, output_path):
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         for r in results:
@@ -174,7 +175,7 @@ def EXPORT_WRAPPER(results, output_path):
     logger.info("Exportation has been completed in EXPORT_WRAPPER")
 
 
-
+# TODO: change in the future to /payroll, not /upload
 @app.post("/upload")
 def upload_endpoint(file: UploadFile):
     global stored_df
@@ -212,6 +213,7 @@ def analyze():
             "ensemble_df": r["ensemble_df"].to_dict(orient="records"),
             "root_cause_df": r["root_cause_df"].to_dict(orient="records"),
             "root_cause_summary": r["root_cause_summary"].to_dict(orient="records"),
+            "overall": bool(r["overall"]),
         }
         for r in df_container
     ])
