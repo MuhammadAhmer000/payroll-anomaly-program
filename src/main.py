@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from starlette.responses import FileResponse, JSONResponse
 
 from src.config_loader import set_config, set_config_api
-from src.data_exportation import compute_zscore_output
+from src.data_exportation import compute_zscore_output, output_database
 from src.data_ingestion import load_payroll, load_payroll_api
 from src.database_ingestion import load_db_credentials
 from src.database_ingestion import import_database
@@ -175,6 +175,12 @@ def EXPORT_WRAPPER(results, output_path):
     logger.info("Exportation has been completed in EXPORT_WRAPPER")
 
 
+def EXPORT_DATABASE(results, database_credentials):
+    output_database(results, database_credentials)
+    logger.info("dataset exported to database")
+
+
+
 # TODO: change in the future to /payroll, not /upload
 @app.post("/upload")
 def upload_endpoint(file: UploadFile):
@@ -224,6 +230,7 @@ def analyze():
 def main():
 
     # === config loading ===
+    global db_credentials
     config = SET_CONFIG()
 
     # === file path from config file
@@ -262,8 +269,8 @@ def main():
         EXPORT_WRAPPER(df_container, output_path)
         logger.info("Exportation has been completed in main()")
 
-    # elif config["exportation_method"] == "database":
-    # TODO: add database functionality
+    elif config["exportation_method"] == "database":
+        EXPORT_DATABASE(df_container, db_credentials)
 
 
 

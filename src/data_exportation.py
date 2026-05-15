@@ -9,6 +9,8 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
+from src.database_ingestion import connect_database
+
 logger = logging.getLogger(__name__)
 
 def compute_zscore_output(writer, emp_id, rule_df, zscore_df, unsupervised_results, ensemble_df, root_cause_df_output, root_cause_summary_output):
@@ -83,33 +85,40 @@ from pathlib import Path
 from openpyxl import load_workbook, Workbook
 
 
-def output_database(zscore_df, unsupervised_results, ensemble_df,
-                          rule_df, emp_id, database_credentials):
+def output_database(results, database_credentials):
 
-    print(zscore_df)
-    print(unsupervised_results)
-    print(ensemble_df)
-    print(emp_id)
-    print(rule_df)
-
-    print(emp_id, zscore_df["anomaly"].any(), ensemble_df["Ensemble_Anomaly"][0], rule_df["Anomaly"].any())
-    overall_bool = (bool(zscore_df["anomaly"].any()) or ensemble_df["Ensemble_Anomaly"][0] or ensemble_df["Ensemble_Anomaly"][0])
-
-
-    database_credentials = ["payroll-simulation-db", "postgres", "osource-project-ahmer"]
     with connect_database(*database_credentials) as conn:
         with conn.cursor() as cur:
-            query = ("CREATE TABLE IF NOT EXISTS Anomaly("
-                     "employee_id NUMERIC(20,2),"
-                     "zscore_cumulative BOOLEAN,"
-                     "payroll_rule_cumulative BOOLEAN," # TODO: Add later
-                     "machine_learning_cumulative BOOLEAN, " 
-                     "overall_cumulative BOOLEAN" # TODO: Add later
-                     ")")
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS Anomaly(
+                    employee_id     NUMERIC(20,2),
+                    zscore_cumulative           BOOLEAN,
+                    payroll_rule_cumulative     BOOLEAN,
+                    machine_learning_cumulative BOOLEAN,
+                    overall_cumulative          BOOLEAN
+                )
+            """)
 
-            cur.execute(query)
+            rows = [
+                (
+                    result["emp_id"],
+                    bool(result["stats_df"]["anomaly"].any()),
+                    bool(result["rule_df"]["Anomaly"].any()),
+                    bool(result["ensemble_df"]["Ensemble_Anomaly"][0]),
+                    bool(result["overall"])
+                )
+                for result in results
+            ]
 
-            cur.execute("""INSERT INTO Anomaly (employee_id, zscore_cumulative, machine_learning_cumulative, payroll_rule_cumulative, overall_cumulative) VALUES (%s, %s, %s, %s, %s)""", (emp_id, bool(zscore_df["anomaly"].any()), bool(ensemble_df["Ensemble_Anomaly"][0]), bool(rule_df["Anomaly"].any()), bool(overall_bool)))
+            cur.executemany("""
+                INSERT INTO Anomaly (
+                    employee_id,
+                    zscore_cumulative,
+                    payroll_rule_cumulative,
+                    machine_learning_cumulative,
+                    overall_cumulative
+                ) VALUES (%s, %s, %s, %s, %s)
+            """, rows)
 
 
 
