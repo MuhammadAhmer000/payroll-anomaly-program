@@ -1,0 +1,123 @@
+.page{
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+
+
+}
+
+.logo-badge{
+
+    width: 75px;
+    height: 75px;
+
+    background: #3ecf8e;
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 0;
+    margin-right: auto;
+    margin-bottom: 12px;
+    margin-left: auto;
+
+}
+
+.card{
+    background-color: #262626;
+    border: 0.5px solid #333;
+    border-radius: 12px;
+    padding: 50px;
+    max-width: 500px;
+    margin: 50px;
+    width: 100%;
+
+}
+
+h2{
+    color: #eee;
+    font-size: 30px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+}
+
+p{
+    font-family: 'Inter', sans-serif;
+    color: #888;
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+}
+
+label{
+    color: #aaa;
+    font-size: 17px;
+    font-weight: 4;
+    font-family: 'Inter', sans-serif;
+}
+
+input{
+    background-color: #1c1c1c;
+    border: 0.5px solid #444;
+    border-radius: 6px;
+    height: 36px;
+    width: 100%;
+    padding-left: 10px;
+    color: #eee;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+}
+
+button{
+    background-color: #3ecf8e;
+    color: #0a2a1a;
+    font-size: 13px;
+    font-weight: 600;
+    height: 36px;
+    width: 100%;
+    border-radius: 6px;
+    border-style: none;
+    font-family: 'Inter', sans-serif;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+button:hover{
+    background-color: #35b87a;
+    color: #0a2a1a;
+    font-size: 13px;
+    font-weight: 600;
+    height: 36px;
+    width: 100%;
+    border-radius: 6px;
+    border-style: none;
+    font-family: 'Inter', sans-serif;
+    margin-top: 10px;
+    
+}
+
+button:active{
+    background-color: #2ea06b;
+    color: #0a2a1a;
+    font-size: 13px;
+    font-weight: 600;
+    height: 36px;
+    width: 100%;
+    border-radius: 6px;
+    border-style: none;
+    font-family: 'Inter', sans-serif;
+    margin-top: 10px;
+    transform: scale(0.98);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

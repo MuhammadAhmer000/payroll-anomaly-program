@@ -1,0 +1,226 @@
+.panel{
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    background-color: #262626;
+    padding: 10px;
+    margin: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 0.5px solid #333;
+    border-radius: 12px;
+    text-align: left;
+    max-width: 1000px;
+    width: 1000px;
+    padding: 20px;
+    padding-bottom: 30px;
+}
+
+.panel h2{
+    color: #eee;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+    padding-left: 10px;
+
+}
+
+.upload-inputs{
+    display: flex;
+    flex: 1;
+    gap: 24px;
+    text-align: left;
+    padding-bottom: 10px;
+    margin: 10px;
+    padding-left: 5px;
+}
+
+.upload-file {
+    border: 1px dashed #444;
+    border-radius: 6px;
+    background-color: #1c1c1c;
+    color: #555;
+    display: flex;
+    height: 60px;
+    width: 100%;
+    text-align: center;
+    padding-left: 20px;
+    align-items: center;
+    margin-top: 15px;
+    background-color: #262626;
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+    
+    /* TODO: add :hover state */
+}
+
+.upload-file:hover{
+    border: 1px dashed #888;
+    border-radius: 6px;
+    background-color: #1c1c1c;
+    color: #aaa;
+    display: flex;
+    height: 60px;
+    width: 100%;
+    text-align: center;
+    padding-left: 20px;
+    align-items: center;
+    margin-top: 15px;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.upload-file:active{
+    border-color: #3ecf8e;
+    background-color: #1a2e24;
+    color: #3ecf8e;
+}
+
+.upload-file--ready {
+    border: 1px solid #3ecf8e;
+    background-color: #1a2e24;
+    color: #3ecf8e;
+
+}
+
+.upload-field {
+    flex: 1;
+}
+
+
+.panel button{
+    max-width: 250px;
+    font-weight: 800;
+    font-size: 15px;
+    height: 50px;
+    margin-left: 16px;  
+    border-radius: 6px;  
+
+}
+
+.employee-card{
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    background-color: #262626;
+    margin: 30px;
+    padding-left: 20px;
+    padding-right: 30px;
+    padding-bottom: 30px;
+    padding-top: 30px;
+    border: 0.5px solid #333;
+    border-radius: 12px;
+    text-align: left;
+    max-width: 1000px;
+    width: 1000px;
+    
+}
+
+.employee-card h2{
+    color: #eee;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.employee-card-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge-anomaly{
+    border: 2px solid #ac4b4b;
+    border-radius: 12px;
+    background-color: #3d1515;
+    width: fit-content;
+    height: fit-content;
+    padding: 6px 12px;
+    font-family: 'Inter', sans-serif;
+    color: #ac4b4b;
+
+
+    
+}
+
+.badge-clean{
+    border: 2px solid #3ecf8e;
+    border-radius: 12px;
+    background-color: #0a2a1a;
+    width: fit-content;
+    height: fit-content;
+    padding: 6px 12px;
+    font-family: 'Inter', sans-serif;
+    color: #3ecf8e;
+}
+
+.employee-card p{
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #888;
+    font-weight: 700;
+    text-align: left;
+    padding-left: 10px;
+    margin-top: 0;
+    
+}
+
+hr {
+    border: none;
+    border-top: 0.5px solid #333;
+    margin: 12px 0;
+    padding-bottom: 12px;
+}
+
+th{
+    color: #888;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    padding-left: 16px;
+    font-weight: 700;
+    border-bottom: 0.5px solid #333;
+    padding-bottom: 14px;
+}
+
+td{
+    color: white;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    padding-left: 16px;
+    font-weight: 700;
+    padding-top: 17px;
+}
+
+.rules-table {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 40px;
+    table-layout: fixed;
+}
+
+.dash-header{
+    flex: auto;
+    
+}
+
+.cyan-rect{
+    background-color: #3ecf8e;
+    width: 25px;
+    height: 25px;
+    padding: 10px;
+    margin: 20px;
+    min-height: 500px;
+}
+
+.dash-header h2{
+    color: #eee;
+    font-size: 20px;
+    font-weight: 800;
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+    padding-left: 90px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
