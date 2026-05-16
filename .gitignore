@@ -1,5 +1,15 @@
+# Environment
 .env
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
+
+# Data
+data/input/
+data/output/
+output.xlsx
+
+# Local
 src/todos
