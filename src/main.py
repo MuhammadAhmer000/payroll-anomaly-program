@@ -1,7 +1,7 @@
 # import statements
 import logging
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from starlette.responses import FileResponse, JSONResponse
 
 from src.config_loader import set_config, set_config_api
@@ -15,6 +15,8 @@ from src.payroll_rule_testing import payroll_validation_wrapper
 from src.stats_testing import compute_zscore_deviation
 import logging
 from pathlib import Path
+from fastapi.responses import StreamingResponse
+import io
 
 from src.trend_analysis import get_trend_analysis, root_cause_formatter
 
@@ -27,6 +29,7 @@ from fastapi import APIRouter, UploadFile
 # global variables
 global stored_df
 global stored_config
+global stored_results_df
 
 app.add_middleware(
     CORSMiddleware,
@@ -154,11 +157,11 @@ def ANALYSIS_WRAPPER(DATAFRAME, EMP_COL, MONTH_COL, config, output_path):
                 "ensemble_df": ensemble_df,
                 "root_cause_df": root_cause_df,
                 "root_cause_summary": root_cause_summary,
-                "overall": (rule_df["Anomaly"].any() or stats_df["anomaly"].any() or unsupervised_df["Ensemble_Anomaly"]).any()
+                "overall": (rule_df["Anomaly"].any() or stats_df["anomaly"].any() or unsupervised_df["Ensemble_Anomaly"].any())
             })
     return results
 
-@app.post("/download")
+
 def EXPORT_WRAPPER(results, output_path):
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         for r in results:
@@ -180,6 +183,33 @@ def EXPORT_DATABASE(results, database_credentials):
     logger.info("dataset exported to database")
 
 
+@app.post("/download")
+def download_endpoint():
+    stored_results = stored_results_df
+
+    if not stored_results_df:
+        raise HTTPException(status_code=400, detail="No results available. Run analysis first.")
+
+    buffer = io.BytesIO()
+
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        for r in stored_results:
+            compute_zscore_output(
+                writer,
+                r["emp_id"],
+                r["rule_df"],
+                r["stats_df"],
+                r["unsupervised_df"],
+                r["ensemble_df"],
+                r["root_cause_df"],
+                r["root_cause_summary"],
+            )
+    logger.info("Exportation has been completed in download_endpoint")
+    buffer.seek(0)
+
+    return StreamingResponse(buffer, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                             headers={"Content-Disposition": "attachment; filename=results.xlsx"})
+
 
 # TODO: change in the future to /payroll, not /upload
 @app.post("/upload")
@@ -187,6 +217,7 @@ def upload_endpoint(file: UploadFile):
     global stored_df
     stored_df = load_payroll_api(file)
     return {"status": "uploaded"}
+
 
 @app.post("/config")
 def config_endpoint(file: UploadFile):
@@ -199,7 +230,7 @@ def config_endpoint(file: UploadFile):
 # TODO: add endpoint for /test here...
 @app.post("/analyze")
 def analyze():
-    global stored_df, stored_config
+    global stored_df, stored_config, stored_results_df
 
     config = stored_config
     payroll_df = stored_df
@@ -209,6 +240,8 @@ def analyze():
 
     # TODO: to remove the "global", add a try/except block
     df_container = ANALYSIS_WRAPPER(payroll_df, EMP_COL, MONTH_COL, config, output_path)
+
+    stored_results_df = df_container
 
     return JSONResponse(content=[
         {
@@ -223,8 +256,6 @@ def analyze():
         }
         for r in df_container
     ])
-
-
 
 
 def main():

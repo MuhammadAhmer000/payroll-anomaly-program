@@ -82,6 +82,7 @@ def create_table_query(file_path: str = Path(__file__).parent.parent / "data/oth
     logger.debug(f"Table query created for simulation: {query} ")
     return query
 
+
 # TODO: revise this program to make it simpler
 # TODO: make this so that it doesn't append, just remakes it
 def simulate_dataset(cur, simulate_dataset_flag=True):
@@ -123,6 +124,7 @@ def simulate_dataset(cur, simulate_dataset_flag=True):
                  row['total_deductions'], row['net_payable'])
             )
     logger.info("Dataset simulation complete")
+
 
 # TODO: move to main wrapper
 def import_database(database_cred, database_name, simulate_data=False) -> pd.DataFrame:

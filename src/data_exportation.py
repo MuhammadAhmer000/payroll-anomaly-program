@@ -70,7 +70,7 @@ def compute_zscore_output(writer, emp_id, rule_df, zscore_df, unsupervised_resul
     worksheet.cell(row=start_row, column=1, value="Overall Verdict")
     start_row += 1
     overall_bool = (bool(zscore_df["anomaly"].any()) or ensemble_df["Ensemble_Anomaly"][0] or
-                    ensemble_df["Ensemble_Anomaly"][0])
+                    rule_df["Anomaly"].any())
     overall_str = "Anomaly" if overall_bool else "No Anomaly"
     worksheet.cell(row=start_row, column=1, value=overall_str)
     start_row += 1

@@ -1,1 +1,2 @@
 Fix the logger, not sure why it isn't working
+capitalize global variables
