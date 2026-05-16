@@ -220,6 +220,22 @@ export function Dashboard(){
       setOutput(results)
   }
 
+  async function download(){
+
+    let data = await fetch("http://localhost:8000/download", {
+        method: "POST",
+    })
+
+    const blob = await data.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "results.xlsx"
+    a.click()
+    URL.revokeObjectURL(url)
+
+  }
+
     return (<>
         <div className="dash-header">
         <h2>Machine Learning Payroll Anomaly Detection System</h2>
@@ -248,6 +264,8 @@ export function Dashboard(){
             </div>
 
             <button onClick={runAnalysis}>Run analysis</button>
+            <button onClick={download} disabled={output === null}>Download</button>
+
 
         </div>
 
