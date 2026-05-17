@@ -234,7 +234,7 @@ export function Prototype(){
       await uploadConfig()
       await uploadPayroll()
 
-    } else if (inputMethod == "db"){
+    } else if (inputMethod == "db"){ // add config if doesn't eixst sttatment
         await uploadConfig()
         await uploadDBPayroll()
     }
@@ -331,6 +331,15 @@ export function Prototype(){
                         </label>
                     </div>
                 </div>
+                <div className="upload-field">
+                    <label>Config file</label>
+                    <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
+                        <span>Choose file → Upload</span>
+                        <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
+                    </label>
+                </div>
+
+
             </>
         )
     }
