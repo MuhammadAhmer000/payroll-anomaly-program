@@ -148,3 +148,39 @@ def import_database(database_cred, database_name, simulate_data=False) -> pd.Dat
 
 
 # TODO: add insert, delete, or just query
+
+
+def connect_database_api(credentials):
+    logger.info(f"Pinging database with database name: {credentials.database}")
+    try:
+        connection = db.connect(
+            host=credentials.host,
+            port=credentials.port,
+            dbname=credentials.database,
+            user=credentials.username,
+            password=credentials.password
+        )
+        logger.info(f"PostgreSQL connection successful with database {credentials.database}")
+        return connection
+    except OperationalError as e:
+        logger.exception(f"Error when connecting to database {credentials.database}")
+        raise
+
+
+def import_database_api(credentials, database_name, simulate_data=False) -> pd.DataFrame:
+    logger.info(f"Importing database from {credentials.database}")
+    with connect_database_api(credentials) as conn:
+        with conn.cursor() as cur:
+            if simulate_data:
+                simulate_dataset(cur, simulate_data)
+            query = f"SELECT * FROM {database_name}"
+            try:
+                result = pd.read_sql_query(query, conn)
+            except Exception as e:
+                print(f"some error when trying to import database: {e}")
+                raise
+
+            logger.info(f"Results are imported and stored: {len(result)}")
+            logger.debug(f"results dataframe: {result.to_string()}")
+
+    return result

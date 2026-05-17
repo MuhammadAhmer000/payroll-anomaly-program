@@ -12,6 +12,7 @@ import src.state as state
 from src.config_loader import set_config_api
 from src.data_exportation import compute_zscore_output
 from src.data_ingestion import load_payroll_api
+from src.database_ingestion import import_database, import_database_api
 from src.wrapper import ANALYSIS_WRAPPER
 
 # App setup
@@ -89,6 +90,24 @@ def analyze():
         }
         for r in df_container
     ])
+
+
+from pydantic import BaseModel
+
+
+class DBCredentials(BaseModel):
+    host: str
+    port: str
+    database: str
+    username: str
+    password: str
+
+
+@router.post("/upload-db")
+def upload_db_endpoint(credentials: DBCredentials):
+    state.stored_df = import_database_api(credentials, "PAYROLL", False)
+    return {"status": "database loaded"}
+
 
 
 

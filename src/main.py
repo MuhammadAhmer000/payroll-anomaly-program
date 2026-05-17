@@ -21,7 +21,12 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Middleware
-app.add_middleware(...)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Routers
 app.include_router(router)
