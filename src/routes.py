@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse, StreamingResponse
 # Local
 import src.state as state
 from src.config_loader import set_config_api
-from src.data_exportation import compute_zscore_output
+from src.data_exportation import compute_zscore_output, output_database_api
 from src.data_ingestion import load_payroll_api
 from src.database_ingestion import import_database, import_database_api
 from src.wrapper import ANALYSIS_WRAPPER
@@ -107,6 +107,12 @@ class DBCredentials(BaseModel):
 def upload_db_endpoint(credentials: DBCredentials):
     state.stored_df = import_database_api(credentials, "PAYROLL", False)
     return {"status": "database loaded"}
+
+@router.post("/download-db")
+def download_db_endpoint(credentials: DBCredentials):
+    output_database_api(credentials, state.stored_results_df)
+    return {"status": "database loaded"}
+
 
 
 

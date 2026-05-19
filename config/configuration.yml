@@ -3,7 +3,7 @@
 # TODO: add a tool to add sections to the YAML file...
 
 # can be "database", "excel"
-ingestion_method: "excel"
+ingestion_method: "database"
 exportation_method: "excel"
 
 simulate_database: true

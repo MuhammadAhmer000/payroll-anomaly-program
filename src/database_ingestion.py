@@ -78,7 +78,7 @@ def create_table_query(file_path: str = Path(__file__).parent.parent / "data/oth
     fixed_column_name = pd.Series(schema_dataframe['column_name'].str.replace(' ', '_', regex=False).
                                   str.replace('(', '', regex=False).str.replace(')', '', regex=False))
     query_per_row = pd.Series(fixed_column_name + ' ' + schema_dataframe['type'])
-    query = "CREATE TABLE Payroll (" + ", ".join(list(query_per_row)) + ");"
+    query = "CREATE TABLE IF NOT EXISTS Payroll (" + ", ".join(list(query_per_row)) + ");"
     logger.debug(f"Table query created for simulation: {query} ")
     return query
 
@@ -92,7 +92,7 @@ def simulate_dataset(cur, simulate_dataset_flag=True):
         try:
             res = cur.execute(payroll_table)
         except Exception as e:
-            logger.warning(f"Table creation skipped: {e}")
+            logger.exception(f"Table creation skipped: {e}")
             cur.connection.rollback()  # recover from failed transaction
 
         df = load_payroll(set_config()["file_path"]["input"])
@@ -148,8 +148,6 @@ def import_database(database_cred, database_name, simulate_data=False) -> pd.Dat
 
 
 # TODO: add insert, delete, or just query
-
-
 def connect_database_api(credentials):
     logger.info(f"Pinging database with database name: {credentials.database}")
     try:

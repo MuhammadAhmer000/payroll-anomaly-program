@@ -9,7 +9,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
-from src.database_ingestion import connect_database
+from src.database_ingestion import connect_database, connect_database_api
 
 logger = logging.getLogger(__name__)
 
@@ -80,9 +80,45 @@ def compute_zscore_output(writer, emp_id, rule_df, zscore_df, unsupervised_resul
 
 from openpyxl import load_workbook, Workbook
 from pathlib import Path
-
-
 from openpyxl import load_workbook, Workbook
+
+
+def output_database_api(database_credentials, results):
+
+    with connect_database_api(database_credentials) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS Anomaly(
+                    employee_id     NUMERIC(20,2),
+                    zscore_cumulative           BOOLEAN,
+                    payroll_rule_cumulative     BOOLEAN,
+                    machine_learning_cumulative BOOLEAN,
+                    overall_cumulative          BOOLEAN
+                )
+            """)
+
+            rows = [
+                (
+                    result["emp_id"],
+                    bool(result["stats_df"]["anomaly"].any()),
+                    bool(result["rule_df"]["Anomaly"].any()),
+                    bool(result["ensemble_df"]["Ensemble_Anomaly"][0]),
+                    bool(result["overall"])
+                )
+                for result in results
+            ]
+
+            cur.executemany("""
+                INSERT INTO Anomaly (
+                    employee_id,
+                    zscore_cumulative,
+                    payroll_rule_cumulative,
+                    machine_learning_cumulative,
+                    overall_cumulative
+                ) VALUES (%s, %s, %s, %s, %s)
+            """, rows)
+            conn.commit()
+
 
 
 def output_database(results, database_credentials):
@@ -119,12 +155,7 @@ def output_database(results, database_credentials):
                     overall_cumulative
                 ) VALUES (%s, %s, %s, %s, %s)
             """, rows)
-
-
-
-
-
-    print(conn)
+            conn.commit()  # ← double check if this changes anything...
 
 
 # 2026-03-09 22:30:20 | DEBUG | src.sql_layer | Table query created for simulation: CREATE TABLE Payroll (month TEXT,
