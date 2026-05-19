@@ -4,7 +4,6 @@ import {useState} from 'react'
 
 
 
-
 function RulesTable({data}){
 
   const rows = []
@@ -170,13 +169,23 @@ function NEmployees({data}){
 
 
 
+
 // change the file upload later to change on :hover // 
 export function Dashboard(){
 
   const [payrollFile, setPayrollFile] = useState(null)
   const [config, setConfig] = useState(null)
   const [output, setOutput] = useState(null)
-
+  const [inputMethod, setInputMethod] = useState("excel") // "excel" or "db"
+  const [dbCredentials, setDbCredentials] = useState({
+    host: "",
+    port: "",
+    database: "",
+    username: "",
+    password: ""
+  })
+  const [outputMethod, setOutputMethod] = useState("excel")
+  
   async function uploadPayroll(){
   const formData = new FormData()
   formData.append("file", payrollFile)
@@ -202,14 +211,32 @@ export function Dashboard(){
     return data
   }
 
+  async function uploadDBPayroll(){
+
+    let data = await fetch("http://localhost:8000/upload-db", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dbCredentials)
+    })
+
+    return data
+  }
 
   async function runAnalysis(){
-    if (config == null || payrollFile == null){
-      alert("FILE MISSING: CHECK PAYROLL & CONFIG")
-      return
-    }
+
+    if (inputMethod == "excel"){
+       if (config == null || payrollFile == null){
+       alert("FILE MISSING: CHECK PAYROLL & CONFIG")
+       return
+       }
+
       await uploadConfig()
       await uploadPayroll()
+
+    } else if (inputMethod == "db"){ // add config if doesn't eixst sttatment
+        await uploadConfig()
+        await uploadDBPayroll()
+    }
 
       const data = await fetch("http://localhost:8000/analyze", {
         method: "POST"
@@ -221,54 +248,173 @@ export function Dashboard(){
   }
 
   async function download(){
+    if (outputMethod == "excel"){
+      let data = await fetch("http://localhost:8000/download", {
+          method: "POST",
+      })
 
-    let data = await fetch("http://localhost:8000/download", {
-        method: "POST",
-    })
+      const blob = await data.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "results.xlsx"
+      a.click()
+      URL.revokeObjectURL(url)
 
-    const blob = await data.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "results.xlsx"
-    a.click()
-    URL.revokeObjectURL(url)
+    } else if (outputMethod == "db"){
+      let data = await fetch("http://localhost:8000/download-db", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dbCredentials)
+      })
+
+    } 
 
   }
+
+  function Data_Input(){
+
+    if (inputMethod == "excel"){  // fix this
+        return(
+            <>
+                <div className="upload-inputs">
+                    <div className="upload-field">
+                        <label>Payroll file</label>
+
+                        <label className={payrollFile ? "upload-file upload-file--ready" : "upload-file"}>
+                            <span>Choose file → Upload</span>   
+                            <input type="file" onChange={(e) => setPayrollFile(e.target.files[0])} hidden />
+                        </label>
+
+                    </div>
+                    <div className="upload-field">
+                        <label>Config file</label>
+
+                        <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
+                            <span>Choose file → Upload</span>   
+                            <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
+                        </label>
+                    </div>
+                </div>
+            </>
+        )
+    }
+    else if (inputMethod == "db"){   // fix this
+        return(
+            <>
+                <div className="upload-inputs">
+                    <div className="upload-field">
+                        <label>Host</label>
+                        <label>
+                            <input type="text" onChange={(e) => setDbCredentials({...dbCredentials, host: e.target.value})}/>
+                        </label>
+                    </div>
+                    <div className="upload-field">
+                        <label>Port</label>
+                        <label>
+                            <input type="text" onChange={(e) => setDbCredentials({...dbCredentials, port: e.target.value})}/>
+                        </label>
+                    </div>
+                </div>
+                <div className="upload-inputs">
+                    <div className="upload-field">
+                        <label>Database</label>
+                        <label>
+                            <input type="text" onChange={(e) => setDbCredentials({...dbCredentials, database: e.target.value})}/>
+                        </label>
+                    </div>
+                    <div className="upload-field">
+                        <label>Username</label>
+                        <label>
+                            <input type="text" onChange={(e) => setDbCredentials({...dbCredentials, username: e.target.value})}/>
+                        </label>
+                    </div>
+                </div>
+                <div className="upload-inputs">
+                    <div className="upload-field">
+                        <label>Password</label>
+                        <label>
+                            <input type="password" onChange={(e) => setDbCredentials({...dbCredentials, password: e.target.value})}/>
+                        </label>
+                    </div>
+                </div>
+                <div className="upload-field">
+                    <label>Config file</label>
+                    <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
+                        <span>Choose file → Upload</span>
+                        <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
+                    </label>
+                </div>
+
+
+            </>
+        )
+    }
+    }
+
+    function Data_Output(){
+
+      if (outputMethod == "excel"){
+        return(
+          <>
+            <div className="regular-text">
+             <p>Results will be downloaded as <code>results.xlsx</code> after analysis completes.</p>
+            </div>
+          </>
+        )
+      } else if (outputMethod == "db"){
+        return(
+          <>
+            <div className="regular-text">
+              <p>Results will be uploaded to table <code>ANOMALY</code> after analysis completes.</p>
+            </div>
+          </>
+        )
+      }
+    }
 
     return (<>
         <div className="dash-header">
         <h2>Machine Learning Payroll Anomaly Detection System</h2>
+        <div className="options">
+            <button>Analysis</button>
+            <button>Analytics</button>
+            <button>Config</button>
+        </div>
         </div>
         <hr />
         <div className="panel">
-            <h2>Upload files</h2>
-            <div className="upload-inputs">
-                <div className="upload-field">
-                    <label>Payroll file</label>
-
-                    <label className={payrollFile ? "upload-file upload-file--ready" : "upload-file"}>
-                        <span>Choose file → Upload</span>   
-                        <input type="file" onChange={(e) => setPayrollFile(e.target.files[0])} hidden />
-                    </label>
-
-                </div>
-                <div className="upload-field">
-                    <label>Config file</label>
-
-                    <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
-                        <span>Choose file → Upload</span>   
-                        <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
-                    </label>
+            <div className="panel-header">
+                <h2>DATA INPUT</h2>
+                <div className="panel-header-buttons">
+                    <button className="excel-button" onClick={() => setInputMethod("excel")}>Excel</button>
+                    <button className="db-button" onClick={() => setInputMethod("db")}>Database</button>
                 </div>
             </div>
-
-            <button onClick={runAnalysis}>Run analysis</button>
-            <button onClick={download} disabled={output === null}>Download</button>
-
-
+            {Data_Input()}
         </div>
 
+        <div className="panel">
+            <div className="panel-header">
+                <h2>OUTPUT METHOD</h2>
+                  <div className="panel-header-buttons">
+                    <button className="excel-button" onClick={() => setOutputMethod("excel")}>Excel</button>
+                    <button className="db-button" onClick={() => setOutputMethod("db")}>Database</button>
+                  </div>
+            </div>
+            {Data_Output()}
+        </div>
+
+        
+        <div className="run-download-buttons">
+          <button onClick={runAnalysis}>Run analysis</button>
+          <button onClick={download} disabled={output === null}>Download</button>
+          <p>Run analysis first to enable download</p>
+        </div>
+
+        <div className="run-download-buttons">
+          <p>{output && `Results — ${output.length} Employee(s)`}</p>
+        </div>
 
         {output && <NEmployees data={output} />}
         

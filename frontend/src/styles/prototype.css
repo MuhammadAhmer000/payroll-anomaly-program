@@ -1,3 +1,4 @@
+/*
 .panel{
     flex-direction: column;
     display: flex;
@@ -52,7 +53,6 @@
     background-color: #262626;
     transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
     
-    /* TODO: add :hover state */
 }
 
 .upload-file:hover{
@@ -87,6 +87,9 @@
 .upload-field {
     flex: 1;
     padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .upload-text {
@@ -282,3 +285,51 @@ td{
     margin-left: 16px;  
     border-radius: 6px; 
 }
+
+.regular-text{
+    display: flex;
+    flex: auto;
+    padding-top: 15px;
+}
+
+
+.regular-text p{
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #888;
+    font-weight: 700;
+    text-align: left;
+    padding-left: 10px;
+    margin-top: 0;
+}
+
+
+.run-download-buttons{
+    display: flex;
+    flex: auto;
+    padding-left: 30px;
+    align-items: center;
+
+}
+
+.run-download-buttons button{
+    width: fit-content;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: 20px;
+    font-size: 15px;
+    
+    
+}
+
+.run-download-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.run-download-buttons p{
+    font-size: 15px;
+    padding-left: 20px;
+    align-items: center;
+}
+*/

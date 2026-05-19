@@ -1,3 +1,4 @@
+/*
 import '../styles/prototype.css'
 import { LogoBadge } from '../components/LogoBadge.jsx'
 import {useState} from 'react'
@@ -184,6 +185,7 @@ export function Prototype(){
     username: "",
     password: ""
   })
+  const [outputMethod, setOutputMethod] = useState("excel")
   
   async function uploadPayroll(){
   const formData = new FormData()
@@ -221,8 +223,6 @@ export function Prototype(){
     return data
   }
 
-
-
   async function runAnalysis(){
 
     if (inputMethod == "excel"){
@@ -249,21 +249,29 @@ export function Prototype(){
   }
 
   async function download(){
+    if (outputMethod == "excel"){
+      let data = await fetch("http://localhost:8000/download", {
+          method: "POST",
+      })
 
-    let data = await fetch("http://localhost:8000/download", {
-        method: "POST",
-    })
+      const blob = await data.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "results.xlsx"
+      a.click()
+      URL.revokeObjectURL(url)
 
-    const blob = await data.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "results.xlsx"
-    a.click()
-    URL.revokeObjectURL(url)
+    } else if (outputMethod == "db"){
+      let data = await fetch("http://localhost:8000/download-db", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dbCredentials)
+      })
+
+    } 
 
   }
-
 
   function Data_Input(){
 
@@ -345,6 +353,27 @@ export function Prototype(){
     }
     }
 
+    function Data_Output(){
+
+      if (outputMethod == "excel"){
+        return(
+          <>
+            <div className="regular-text">
+             <p>Results will be downloaded as <code>results.xlsx</code> after analysis completes.</p>
+            </div>
+          </>
+        )
+      } else if (outputMethod == "db"){
+        return(
+          <>
+            <div className="regular-text">
+              <p>Results will be uploaded to table <code>ANOMALY</code> after analysis completes.</p>
+            </div>
+          </>
+        )
+      }
+    }
+
     return (<>
         <div className="dash-header">
         <h2>Machine Learning Payroll Anomaly Detection System</h2>
@@ -364,13 +393,29 @@ export function Prototype(){
                 </div>
             </div>
             {Data_Input()}
-
-            <button onClick={runAnalysis}>Run analysis</button>
-            <button onClick={download} disabled={output === null}>Download</button>
-
-
         </div>
 
+        <div className="panel">
+            <div className="panel-header">
+                <h2>OUTPUT METHOD</h2>
+                  <div className="panel-header-buttons">
+                    <button className="excel-button" onClick={() => setOutputMethod("excel")}>Excel</button>
+                    <button className="db-button" onClick={() => setOutputMethod("db")}>Database</button>
+                  </div>
+            </div>
+            {Data_Output()}
+        </div>
+
+        
+        <div className="run-download-buttons">
+          <button onClick={runAnalysis}>Run analysis</button>
+          <button onClick={download} disabled={output === null}>Download</button>
+          <p>Run analysis first to enable download</p>
+        </div>
+
+        <div className="run-download-buttons">
+          <p>{output && `Results — ${output.length} Employee(s)`}</p>
+        </div>
 
         {output && <NEmployees data={output} />}
         
@@ -380,3 +425,4 @@ export function Prototype(){
     
     </>)
 }
+*/
