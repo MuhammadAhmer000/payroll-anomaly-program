@@ -25,6 +25,11 @@ def set_config(CONFIG_PATH: str = Path(__file__).parent.parent / "config/configu
             return None
 
 
+def update_config(data, CONFIG_PATH: str = Path(__file__).parent.parent / "config/configuration.yml"):
+    with open(CONFIG_PATH, 'w') as file:
+        yaml.dump(data, file)
+
+
 def set_config_api(file_name: UploadFile):
     try:
         contents = file_name.file.read()

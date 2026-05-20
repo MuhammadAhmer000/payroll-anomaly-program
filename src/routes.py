@@ -14,6 +14,7 @@ from src.data_exportation import compute_zscore_output, output_database_api
 from src.data_ingestion import load_payroll_api
 from src.database_ingestion import import_database, import_database_api
 from src.wrapper import ANALYSIS_WRAPPER
+from src.config_loader import set_config
 
 # App setup
 router = APIRouter()
@@ -102,6 +103,19 @@ class DBCredentials(BaseModel):
     username: str
     password: str
 
+class RulesThreshold(BaseModel):
+    pf: float
+    hra: float
+    net_payable: float
+    z_score: float
+
+class RateData(BaseModel):
+    pf: float
+
+class ConfigTemplate(BaseModel):
+    rules_threshold: RulesThreshold
+    rate_data: RateData
+
 
 @router.post("/upload-db")
 def upload_db_endpoint(credentials: DBCredentials):
@@ -112,6 +126,37 @@ def upload_db_endpoint(credentials: DBCredentials):
 def download_db_endpoint(credentials: DBCredentials):
     output_database_api(credentials, state.stored_results_df)
     return {"status": "database loaded"}
+
+"""
+# TODO:
+Refactor config system to separate user-configurable vs system/dev-configurable sections and update only the user-owned 
+section (avoid full YAML overwrite)
+Fix YAML key mismatch (rule_threshold vs rules_threshold)
+Replace manual field-by-field YAML updates with a single structured merge/update
+Move YAML update logic into a separate function (e.g. update_config / merge_config)
+Avoid duplicating config state in multiple state.* variables
+Add safe deep-merge logic later to prevent overwriting unrelated YAML sections
+"""
+
+@router.post("/update-config")
+def update_config_endpoint(config: ConfigTemplate):
+
+    # import user "config" specifications (frontend) data to the backend
+    state.stored_config_dict = config.model_dump()
+    temp_config = set_config()
+
+    # TODO: Move this to a function later
+    # transfer dict to yaml file
+    temp_config["rules_threshold"]["pf"] = config.rules_threshold.pf
+    temp_config["rules_threshold"]["hra"] = config.rules_threshold.hra
+    temp_config["rules_threshold"]["net_payable"] = config.rules_threshold.net_payable
+    temp_config["rules_threshold"]["z_score"] = config.rules_threshold.z_score
+    temp_config["rate_data"]["pf"] = config.rate_data.pf
+
+    # store it in stored_config after transferring
+    state.stored_config = temp_config
+
+    return {"status": "config updated"}
 
 
 

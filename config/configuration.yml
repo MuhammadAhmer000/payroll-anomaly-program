@@ -19,6 +19,8 @@ rule_threshold:
   net_payable: 0.01
   z_score: 3.0
 
+min_months: 3
+
 rate_data:
   pf: 0.12
 
