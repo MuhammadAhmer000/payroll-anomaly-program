@@ -1,5 +1,6 @@
 import '../styles/dashboard.css'
 import { LogoBadge } from '../components/LogoBadge.jsx'
+import { NavBar } from '../components/NavBar.jsx'
 import {useState} from 'react'
 
 
@@ -171,7 +172,7 @@ function NEmployees({data}){
 
 
 // change the file upload later to change on :hover // 
-export function Dashboard(){
+export function Dashboard({ setActivePage }){
 
   const [payrollFile, setPayrollFile] = useState(null)
   const [config, setConfig] = useState(null)
@@ -185,6 +186,7 @@ export function Dashboard(){
     password: ""
   })
   const [outputMethod, setOutputMethod] = useState("excel")
+  const [configOption, setConfigOption] = useState("file")
   
   async function uploadPayroll(){
   const formData = new FormData()
@@ -285,21 +287,22 @@ export function Dashboard(){
                             <span>Choose file → Upload</span>   
                             <input type="file" onChange={(e) => setPayrollFile(e.target.files[0])} hidden />
                         </label>
-
                     </div>
-                    <div className="upload-field">
-                        <label>Config file</label>
+                      {/* !! REMOVE LATER !!
+                      <div className="upload-field">
+                          <label>Config file</label>
 
-                        <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
-                            <span>Choose file → Upload</span>   
-                            <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
-                        </label>
-                    </div>
-                </div>
+                          <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
+                              <span>Choose file → Upload</span>   
+                              <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
+                          </label>
+                      </div>
+                      */}
+                  </div>
             </>
         )
     }
-    else if (inputMethod == "db"){   // fix this
+    else if (inputMethod == "db"){   // fix this, how??
         return(
             <>
                 <div className="upload-inputs">
@@ -338,6 +341,7 @@ export function Dashboard(){
                         </label>
                     </div>
                 </div>
+                {/* !! REMOVE LATER !! 
                 <div className="upload-field">
                     <label>Config file</label>
                     <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
@@ -345,12 +349,46 @@ export function Dashboard(){
                         <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
                     </label>
                 </div>
+                */}
 
 
             </>
         )
     }
     }
+
+    function Config_Input(){
+
+      if (configOption == "file"){ // change from "true" to configOption == "file"
+        
+        return (
+          <>
+            <div className="upload-field">
+              <label>Config file</label>
+              <label className={config ? "upload-file upload-file--ready" : "upload-file"}>
+                <span>Choose file → Upload</span>
+                <input type="file" onChange={(e) => setConfig(e.target.files[0])} hidden />
+              </label>
+            </div>
+          </>
+        )
+
+      } else if (configOption == "settings"){ // change from "true" to configOption == "settings"
+         
+        return (
+          <>
+            <div className="regular-text">
+            <p><span>ⓘ </span>Using values from the Config page.</p>
+            </div>
+          </>
+
+        )
+        
+      }
+
+
+    }
+
 
     function Data_Output(){
 
@@ -374,15 +412,7 @@ export function Dashboard(){
     }
 
     return (<>
-        <div className="dash-header">
-        <h2>Machine Learning Payroll Anomaly Detection System</h2>
-        <div className="options">
-            <button>Analysis</button>
-            <button>Analytics</button>
-            <button>Config</button>
-        </div>
-        </div>
-        <hr />
+        <NavBar setActivePage={setActivePage} configOption={configOption} />
         <div className="panel">
             <div className="panel-header">
                 <h2>DATA INPUT</h2>
@@ -392,6 +422,17 @@ export function Dashboard(){
                 </div>
             </div>
             {Data_Input()}
+        </div>
+
+        <div className="panel">
+            <div className="panel-header">
+                <h2>CONFIG INPUT</h2>
+                <div className="panel-header-buttons">
+                    <button className="excel-button" onClick={() => setConfigOption("file")}>YAML</button>
+                    <button className="db-button" onClick={() => setConfigOption("settings")}>Settings</button>
+                </div>
+            </div>
+            {Config_Input()}
         </div>
 
         <div className="panel">

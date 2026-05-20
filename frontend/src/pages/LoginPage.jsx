@@ -9,7 +9,7 @@ const key = import.meta.env.VITE_SUPABASE_KEY
 
 const supabase = createClient(url, key)
 
-export function LoginPage({onLogin }){
+export function LoginPage({ onLogin }){
     
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")

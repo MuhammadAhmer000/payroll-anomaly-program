@@ -6,16 +6,18 @@ import { useState } from 'react'
 
 export default function App(){
   
-  return <Config />
-  /*
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   
-  if (isLoggedIn) {
-     return <Dashboard />
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [activePage, setActivePage] = useState("dashboard")
+  
+  if (!isLoggedIn) {
+     return <LoginPage onLogin={() => setIsLoggedIn(true)} />
    }
 
-   return <LoginPage onLogin={() => setIsLoggedIn(true)} />
-  */
+  if (activePage === "dashboard") return <Dashboard setActivePage={setActivePage} />
+  // if (activePage === "analytics") return <Analytics setActivePage={setActivePage} />
+  if (activePage === "config") return <Config setActivePage={setActivePage} />
+  
 
 
 }
