@@ -1,0 +1,14 @@
+exportation_method: excel
+file_path:
+  column_schema: data/other/column_schema.xlsx
+  input: data/input/Sample_Salary_Register.xlsx
+  output: data/output/output_data.xlsx
+ingestion_method: database
+rate_data:
+  pf: 0.12
+rule_threshold:
+  hra: 0.05
+  net_payable: 0.01
+  pf: 0.1
+  z_score: 4.0
+simulate_database: true
