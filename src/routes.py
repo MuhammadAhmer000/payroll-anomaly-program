@@ -9,7 +9,7 @@ from starlette.responses import JSONResponse, StreamingResponse
 
 # Local
 import src.state as state
-from src.config_loader import set_config_api
+from src.config_loader import set_config_api, update_config
 from src.data_exportation import compute_zscore_output, output_database_api
 from src.data_ingestion import load_payroll_api
 from src.database_ingestion import import_database, import_database_api
@@ -103,18 +103,13 @@ class DBCredentials(BaseModel):
     username: str
     password: str
 
-class RulesThreshold(BaseModel):
-    pf: float
-    hra: float
-    net_payable: float
-    z_score: float
-
-class RateData(BaseModel):
-    pf: float
 
 class ConfigTemplate(BaseModel):
-    rules_threshold: RulesThreshold
-    rate_data: RateData
+    pf_threshold: float
+    hra_threshold: float
+    net_payable: float
+    z_score: float
+    pf_rate: float
 
 
 @router.post("/upload-db")
@@ -145,16 +140,23 @@ def update_config_endpoint(config: ConfigTemplate):
     state.stored_config_dict = config.model_dump()
     temp_config = set_config()
 
+    print(temp_config)
+
     # TODO: Move this to a function later
     # transfer dict to yaml file
-    temp_config["rules_threshold"]["pf"] = config.rules_threshold.pf
-    temp_config["rules_threshold"]["hra"] = config.rules_threshold.hra
-    temp_config["rules_threshold"]["net_payable"] = config.rules_threshold.net_payable
-    temp_config["rules_threshold"]["z_score"] = config.rules_threshold.z_score
-    temp_config["rate_data"]["pf"] = config.rate_data.pf
+    temp_config["rule_threshold"]["pf"] = config.pf_threshold
+    temp_config["rule_threshold"]["hra"] = config.hra_threshold
+    temp_config["rule_threshold"]["net_payable"] = config.net_payable
+    temp_config["rule_threshold"]["z_score"] = config.z_score
+    temp_config["rate_data"]["pf"] = config.pf_rate
+
+    print(temp_config)
 
     # store it in stored_config after transferring
     state.stored_config = temp_config
+
+    # set it to the config in the backend system
+    update_config(temp_config)
 
     return {"status": "config updated"}
 
