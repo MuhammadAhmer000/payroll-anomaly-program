@@ -261,7 +261,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
         method: "POST"
       })
 
-      const text = await response.text()
+      const text = await data.text()
 
       console.log("RAW RESPONSE:", text)
 
