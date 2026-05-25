@@ -172,7 +172,7 @@ function NEmployees({data}){
 
 
 // change the file upload later to change on :hover // 
-export function Dashboard({ setActivePage }){
+export function Dashboard({ setActivePage, configObject, setConfigObject }){
 
   const [payrollFile, setPayrollFile] = useState(null)
   const [config, setConfig] = useState(null)
@@ -226,17 +226,34 @@ export function Dashboard({ setActivePage }){
 
   async function runAnalysis(){
 
-    if (inputMethod == "excel"){
-       if (config == null || payrollFile == null){
-       alert("FILE MISSING: CHECK PAYROLL & CONFIG")
-       return
-       }
-
+    if (inputMethod == "excel" && configOption == "file"){
+      
+      if (payrollFile == null || configObject == null){
+        alert("FILE MISSING: CHECK PAYROLL & CONFIG")
+      }
+      
       await uploadConfig()
       await uploadPayroll()
 
-    } else if (inputMethod == "db"){ // add config if doesn't eixst sttatment
+    } else if (inputMethod == "excel" && configOption == "settings"){
+
+      if (payrollFile == null){
+        alert("FILE MISSING: CHECK PAYROLL")
+      }
+
+      await uploadConfig()
+      // might need to await Config Upload? but maybe not
+    
+    } else if (inputMethod == "db" && configOption == "file"){ // add config if doesn't eixst sttatment
+        
+        if (configObject == null){
+        alert("FILE MISSING: CHECK CONFIG")
+        } 
+        
         await uploadConfig()
+        await uploadDBPayroll()
+    } else if (inputMethod == "db" && configOption == "settings"){ // add config if doesn't eixst sttatment
+        
         await uploadDBPayroll()
     }
 
@@ -458,10 +475,6 @@ export function Dashboard({ setActivePage }){
         </div>
 
         {output && <NEmployees data={output} />}
-        
-
-
       
-    
     </>)
 }
