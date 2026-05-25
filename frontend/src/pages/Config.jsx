@@ -2,7 +2,7 @@ import {useState} from 'react'
 import '../styles/dashboard.css'
 import { defaultConfig } from "../App.jsx"
 import {NavBar} from "../components/NavBar.jsx"
-
+const domain = import.meta.env.VITE_BACKEND_URL
 
 export function Config({ setActivePage, configObject, setConfigObject }){
 
@@ -12,7 +12,7 @@ export function Config({ setActivePage, configObject, setConfigObject }){
         
         e.preventDefault();
 
-        let data = await fetch("http://localhost:8000/update-config", { 
+        let data = await fetch(`${domain}/update-config`, { 
             method: "POST", 
             headers: { "Content-Type": "application/json" }, 
             body: JSON.stringify(configObject) 

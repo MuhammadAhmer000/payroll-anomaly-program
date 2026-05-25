@@ -3,7 +3,7 @@ import { LogoBadge } from '../components/LogoBadge.jsx'
 import { NavBar } from '../components/NavBar.jsx'
 import {useState} from 'react'
 
-
+const domain = import.meta.env.VITE_BACKEND_URL
 
 function RulesTable({data}){
 
@@ -192,7 +192,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
   const formData = new FormData()
   formData.append("file", payrollFile)
 
-  let data = await fetch("http://localhost:8000/upload", {
+  let data = await fetch(`${domain}/upload`, {
     method: "POST",
     body: formData
   })
@@ -205,7 +205,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
     const formData = new FormData()
     formData.append("file", config)
 
-    let data = await fetch("http://localhost:8000/config", {
+    let data = await fetch(`${domain}/config`, {
       method: "POST",
       body: formData
     })
@@ -215,7 +215,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
 
   async function uploadDBPayroll(){
 
-    let data = await fetch("http://localhost:8000/upload-db", {
+    let data = await fetch(`${domain}/upload-db`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dbCredentials)
@@ -257,7 +257,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
         await uploadDBPayroll()
     }
 
-      const data = await fetch("http://localhost:8000/analyze", {
+      const data = await fetch(`${domain}/analyze`, {
         method: "POST"
       })
 
@@ -268,7 +268,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
 
   async function download(){
     if (outputMethod == "excel"){
-      let data = await fetch("http://localhost:8000/download", {
+      let data = await fetch(`${domain}/download`, {
           method: "POST",
       })
 
@@ -281,7 +281,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
       URL.revokeObjectURL(url)
 
     } else if (outputMethod == "db"){
-      let data = await fetch("http://localhost:8000/download-db", {
+      let data = await fetch(`${domain}/download-db`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dbCredentials)

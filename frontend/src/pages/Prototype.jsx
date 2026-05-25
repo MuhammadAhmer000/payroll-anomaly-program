@@ -191,7 +191,7 @@ export function Prototype(){
   const formData = new FormData()
   formData.append("file", payrollFile)
 
-  let data = await fetch("http://localhost:8000/upload", {
+  let data = await fetch("${domain}/upload", {
     method: "POST",
     body: formData
   })
@@ -204,7 +204,7 @@ export function Prototype(){
     const formData = new FormData()
     formData.append("file", config)
 
-    let data = await fetch("http://localhost:8000/config", {
+    let data = await fetch("${domain}/config", {
       method: "POST",
       body: formData
     })
@@ -214,7 +214,7 @@ export function Prototype(){
 
   async function uploadDBPayroll(){
 
-    let data = await fetch("http://localhost:8000/upload-db", {
+    let data = await fetch("${domain}/upload-db", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dbCredentials)
@@ -239,7 +239,7 @@ export function Prototype(){
         await uploadDBPayroll()
     }
 
-      const data = await fetch("http://localhost:8000/analyze", {
+      const data = await fetch("${domain}/analyze", {
         method: "POST"
       })
 
@@ -250,7 +250,7 @@ export function Prototype(){
 
   async function download(){
     if (outputMethod == "excel"){
-      let data = await fetch("http://localhost:8000/download", {
+      let data = await fetch("${domain}/download", {
           method: "POST",
       })
 
@@ -263,7 +263,7 @@ export function Prototype(){
       URL.revokeObjectURL(url)
 
     } else if (outputMethod == "db"){
-      let data = await fetch("http://localhost:8000/download-db", {
+      let data = await fetch("${domain}/download-db", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dbCredentials)

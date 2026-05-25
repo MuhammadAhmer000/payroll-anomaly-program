@@ -2,6 +2,7 @@ import {LogoBadge} from '../components/LogoBadge.jsx'
 import '../styles/login.css'
 import {useState} from 'react'
 import {createClient} from '@supabase/supabase-js'
+const domain = import.meta.env.VITE_BACKEND_URL
 
 // 1. HOOKS
 const url = import.meta.env.VITE_SUPABASE_URL
