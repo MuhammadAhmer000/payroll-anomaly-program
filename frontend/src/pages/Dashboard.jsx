@@ -257,11 +257,11 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
         await uploadDBPayroll()
     }
 
-      const data = await fetch(`${domain}/analyze`, {
+      const response = await fetch(`${domain}/analyze`, {
         method: "POST"
       })
 
-      const text = await data.text()
+      const text = await response.text()
 
       console.log("RAW RESPONSE:", text)
 
@@ -269,7 +269,7 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
         throw new Error("Backend returned empty response")
       }
 
-      const results = await data.json()
+      const results = JSON.parse(text)
       setOutput(results)
   }
 
