@@ -261,6 +261,13 @@ export function Dashboard({ setActivePage, configObject, setConfigObject }){
         method: "POST"
       })
 
+      const text = await response.text()
+
+      console.log("RAW RESPONSE:", text)
+
+      if (!text) {
+        throw new Error("Backend returned empty response")
+      }
 
       const results = await data.json()
       setOutput(results)

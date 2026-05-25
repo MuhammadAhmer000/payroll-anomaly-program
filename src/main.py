@@ -20,6 +20,11 @@ from src.wrapper import (
 logger = logging.getLogger(__name__)
 app = FastAPI()
 
+origins = [
+    "https://payroll-anomaly-program.onrender.com",
+    "http://localhost:5173",  # keep for local dev (Vite)
+]
+
 # Middleware
 app.add_middleware(
     CORSMiddleware,
